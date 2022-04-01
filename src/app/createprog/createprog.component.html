@@ -1,0 +1,67 @@
+<h1 class="mb-3">Créer une progression d'accords</h1>
+
+<div class="card mb-3">
+    <div class="card-header">
+      Sélection de la tonalité et de la gamme
+    </div>
+    <div class="card-body">
+      <div class="row">
+        <div class="col-6 text-center">
+            Tonalité: {{ keys[0].tonicName }}
+        </div>
+        <div class="col-6 text-center">
+            <form>
+                <select class="form-select" aria-label="Liste des gammes" name="scaleTypeSelect" [(ngModel)]="selScaleType" (ngModelChange)="initPhrase()">
+                    <option *ngFor="let scaleType of scaleTypes" [ngValue]="scaleType">{{ scaleType.name['fr'] }}</option>
+                </select>
+            </form>
+        </div>
+      </div>
+    </div>
+</div>
+
+<div class="card mb-3">
+    <div class="card-header">
+      Accords relatifs
+    </div>
+    <div class="card-body">
+       <div class="row">
+            <div class="col-2 text-center offset-1">
+            {{ getTonicChord(selScaleType.tonicId).name }}
+            </div>
+            <div class="col-2" *ngFor="let item of [].constructor(4); let i = index">
+                <select class="form-select" aria-label="Liste des accords" name="chordSelect" [(ngModel)]="phrasesChords[i+1]" (ngModelChange)="initNextChords(i)">
+                    <option *ngFor="let chord of getChords(getChord(phrasesChords[i].id).nextChordIds)" [ngValue]="chord">{{ chord.name }}</option>
+                </select>
+            </div>
+       </div>
+    </div>
+</div>
+
+<div class="card mb-3">
+    <div class="card-header">
+      Accords absolus
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-2 offset-1 text-center">
+                {{ keys[0][phrasesChords[0].name] }}
+            </div>
+            <div class="col-2 text-center" *ngFor="let item of [].constructor(4); let i = index">
+                {{ keys[0][phrasesChords[i+1].name] }}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Affichage d'une alerte quand le dernier accord n'est pas un bon degré pour terminer la phrase -->
+<div class="row" *ngIf="phrasesChords[phrasesChords.length-1].id > 0 && !selScaleType.lastChordIds.includes(phrasesChords[phrasesChords.length-1].id)">
+   <div class="text-center mb-3 alert alert-danger" role="alert">
+        Pour un meilleur résultat, pensez à terminer la progression d'accords sur un des accords suivants: 
+        <span *ngFor="let chord of getChords(selScaleType.lastChordIds)">{{ chord.name }} </span> 
+    </div>
+</div>
+
+<div class="row">
+    <button class="btn btn-primary col-4 offset-4" (click)="playPhrase()">Jouer</button>
+</div>
